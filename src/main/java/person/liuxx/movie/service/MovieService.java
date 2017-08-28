@@ -20,5 +20,5 @@ public interface MovieService
     * @param mov
     * @return
     */
-    Optional<MovieDO> save(MovieDTO mov);
+    Optional<MovieDO> save(MovieDTO movie);
 }

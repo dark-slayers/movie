@@ -2,8 +2,10 @@ package person.liuxx.movie.service.impl;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import person.liuxx.movie.dao.MovieRepository;
 import person.liuxx.movie.domain.MovieDO;
 import person.liuxx.movie.dto.MovieDTO;
 import person.liuxx.movie.service.MovieService;
@@ -17,16 +19,14 @@ import person.liuxx.movie.service.MovieService;
 @Service
 public class MovieServiceImpl implements MovieService
 {
+    @Autowired
+    private MovieRepository movieDao;
+
     @Override
-    public Optional<MovieDO> save(MovieDTO mov)
+    public Optional<MovieDO> save(MovieDTO movie)
     {
-        MovieDO movie = new MovieDO();
-        movie.setId(1L);
-        movie.setCode("TEST-AOP-001");
-        movie.setLevel(3);
-        movie.setActress("UNKNOWN");
-        movie.setPath("D:\\temp");
-        movie.setUniform("UNKNOWN");
-        return Optional.of(movie);
+        Optional<MovieDO> movieOptional = MovieDO.createOptional(movie);
+        Optional<MovieDO> result = movieOptional.map(m -> movieDao.save(m));
+        return result;
     }
 }
