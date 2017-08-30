@@ -21,7 +21,6 @@ import person.liuxx.movie.domain.MovieDO;
 import person.liuxx.movie.dto.MovieDTO;
 import person.liuxx.movie.exception.MovieSaveFailedException;
 import person.liuxx.movie.service.MovieService;
-
 import person.liuxx.util.log.LogUtil;
 import person.liuxx.util.service.reponse.ErrorResponse;
 
@@ -53,7 +52,7 @@ public class MovieController
         {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
-        return movService.save(movie).orElseThrow(() ->
+        return movService.save(movie).<MovieSaveFailedException> orElseThrow(() ->
         {
             throw new MovieSaveFailedException("添加视频失败，视频信息：" + movie);
         });

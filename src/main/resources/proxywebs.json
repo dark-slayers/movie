@@ -1,0 +1,32 @@
+[
+    {
+        "ipIndex": 1,
+        "maxDeep": 1,
+        "portIndex": 2,
+        "single": true,
+        "charset":"UTF-8",
+        "subUrl": [
+            "http-proxy",
+            "https-proxy"
+        ],
+        "tableTag": "table table-striped",
+        "tableTagType": "Class",
+        "url": "http://31f.cn/"
+    },
+    {
+        "ipIndex": 0,
+        "maxDeep": 10,
+        "portIndex": 1,
+        "single": false,
+        "charset":"UTF-8",
+        "subUrl": [
+            "wt",
+            "wn",
+            "nt",
+            "nn"
+        ],
+        "tableTag": "ip_list",
+        "tableTagType": "Id",
+        "url": "http://www.xicidaili.com/"
+    }
+]
