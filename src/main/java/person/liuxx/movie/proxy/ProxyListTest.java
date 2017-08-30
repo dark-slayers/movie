@@ -41,6 +41,7 @@ import person.liuxx.util.log.LogUtil;
  *          创建时间：2017年8月29日 下午2:42:00
  * @since 1.0.0
  */
+@Deprecated
 public class ProxyListTest
 {
     private Logger log = LogManager.getLogger();
@@ -125,6 +126,10 @@ public class ProxyListTest
         try (CloseableHttpClient httpclient = HttpClients.createDefault())
         {
             final HttpGet httpget = new HttpGet(url);
+            httpget.addHeader("User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                    + " AppleWebKit/537.36 (KHTML, like Gecko)"
+                    + " Chrome/60.0.3112.78 Safari/537.36");
             log.info("Executing request {} -> {}", httpget.getMethod(), httpget.getUri());
             final ResponseHandler<String> responseHandler = new ResponseHandler<String>()
             {

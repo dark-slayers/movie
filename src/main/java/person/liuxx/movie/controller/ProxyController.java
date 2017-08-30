@@ -1,15 +1,15 @@
 package person.liuxx.movie.controller;
 
-import java.util.List;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import person.liuxx.movie.proxy.ProxyListTest;
-import person.liuxx.movie.proxy.ProxyTestResult;
+import person.liuxx.movie.service.ProxyTestService;
 
 /**
  * @author 刘湘湘
@@ -22,10 +22,13 @@ import person.liuxx.movie.proxy.ProxyTestResult;
 @Api(value = "代理控制器")
 public class ProxyController
 {
+    @Autowired
+    private ProxyTestService proxyTestService;
+
     @ApiOperation(value = "获取代理地址列表的测试结果", notes = "获取测试代理后的测试结果")
     @GetMapping("/list")
-    List<ProxyTestResult> list()
+    Map<String, Long> list()
     {
-        return new ProxyListTest("http://www.141jav.com/latest/2017-08-27/").run();
+        return proxyTestService.mapTestResult("https://www.facebook.com/");
     }
 }
