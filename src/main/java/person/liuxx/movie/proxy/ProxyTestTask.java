@@ -63,8 +63,10 @@ public class ProxyTestTask implements Callable<ProxyTestResult>
                     .setProxy(new HttpHost(address.getHost(), address.getPort()))
                     .build();
             httpget.setConfig(requestConfig);
+            httpget.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                    + " AppleWebKit/537.36 (KHTML, like Gecko)"
+                    + " Chrome/60.0.3112.78 Safari/537.36");
             log.info("Executing request {} -> {}", httpget.getMethod(), httpget.getUri());
-            // Create a custom response handler
             final ResponseHandler<Long> responseHandler = new ResponseHandler<Long>()
             {
                 @Override

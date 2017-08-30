@@ -20,13 +20,11 @@
         "single": false,
         "charset":"UTF-8",
         "subUrl": [
-            "wt",
-            "wn",
-            "nt",
-            "nn"
+            "inha",
+            "intr"
         ],
-        "tableTag": "ip_list",
+        "tableTag": "list",
         "tableTagType": "Id",
-        "url": "http://www.xicidaili.com/"
+        "url": "http://www.kuaidaili.com/free/"
     }
 ]

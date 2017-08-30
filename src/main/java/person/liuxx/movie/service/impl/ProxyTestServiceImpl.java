@@ -2,13 +2,17 @@ package person.liuxx.movie.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletionService;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -39,6 +43,16 @@ public class ProxyTestServiceImpl implements ProxyTestService
     private Logger log = LogManager.getLogger();
     @Autowired
     private ElConfig config;
+    private static AtomicBoolean taskIsRunning = new AtomicBoolean(false);
+    private static Map<String, Long> map = new ConcurrentHashMap<>();
+
+    @Override
+    public Map<String, Long> mapTestResult(String targetAddress)
+    {
+        Map<String, Long> result = new HashMap<>();
+        result.putAll(map);
+        return result;
+    }
 
     @Override
     public List<ProxyTestResult> listTestResult(String targetAddress)
@@ -72,6 +86,48 @@ public class ProxyTestServiceImpl implements ProxyTestService
             log.error(LogUtil.errorInfo(e));
         }
         return result;
+    }
+
+    @Override
+    public void startTask(String targetAddress)
+    {
+        synchronized (map)
+        {
+            if (taskIsRunning.get())
+            {
+                return;
+            }
+            taskIsRunning.set(true);
+            map.clear();
+            List<ProxyAddress> info = readList();
+            ExecutorService executor = Executors.newFixedThreadPool(30);
+            CompletionService<ProxyTestResult> service = new ExecutorCompletionService<ProxyTestResult>(
+                    executor);
+            for (final ProxyAddress p : info)
+            {
+                service.submit(new ProxyTestTask(p, targetAddress));
+            }
+            try
+            {
+                for (int i = 0, max = info.size(); i < max; i++)
+                {
+                    Future<ProxyTestResult> f = service.take();
+                    ProxyTestResult r = f.get();
+                    if (r.getTime() > 0)
+                    {
+                        map.put(r.getAddress().getHost() + ":" + r.getAddress().getPort(), r
+                                .getTime());
+                    }
+                }
+                taskIsRunning.set(false);
+            } catch (ExecutionException e)
+            {
+                log.error(LogUtil.errorInfo(e));
+            } catch (InterruptedException e)
+            {
+                log.error(LogUtil.errorInfo(e));
+            }
+        }
     }
 
     private List<ProxyAddress> readList()

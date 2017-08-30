@@ -1,6 +1,7 @@
 package person.liuxx.movie.service;
 
 import java.util.List;
+import java.util.Map;
 
 import person.liuxx.movie.proxy.ProxyTestResult;
 
@@ -13,4 +14,8 @@ import person.liuxx.movie.proxy.ProxyTestResult;
 public interface ProxyTestService
 {
     List<ProxyTestResult> listTestResult(String targetAddress);
+
+    Map<String, Long> mapTestResult(String targetAddress);
+
+    void startTask(String targetAddress);
 }

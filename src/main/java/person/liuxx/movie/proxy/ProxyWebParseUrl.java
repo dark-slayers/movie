@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import org.apache.hc.client5.http.impl.sync.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.sync.HttpClients;
-import org.apache.hc.client5.http.protocol.ClientProtocolException;
 import org.apache.hc.client5.http.sync.methods.HttpGet;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
@@ -26,6 +25,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import person.liuxx.movie.dto.ProxyWebDTO;
+import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.log.LogUtil;
 
 /**
@@ -62,7 +62,7 @@ public class ProxyWebParseUrl
         {
             if (dto.isSingle())
             {
-                String url = dto.getUrl() + sub;
+                String url = dto.getUrl() + sub + "/";
                 ProxyWebParseUrl p = new ProxyWebParseUrl(url, dto.getTableTag(), dto
                         .getTableTagType(), dto.getIpIndex(), dto.getPortIndex(), dto.getCharset());
                 list.add(p);
@@ -70,7 +70,7 @@ public class ProxyWebParseUrl
             {
                 for (int i = 1, max = dto.getMaxDeep() + 1; i < max; i++)
                 {
-                    String url = dto.getUrl() + sub + "/" + i;
+                    String url = dto.getUrl() + sub + "/" + i + "/";
                     ProxyWebParseUrl p = new ProxyWebParseUrl(url, dto.getTableTag(), dto
                             .getTableTagType(), dto.getIpIndex(), dto.getPortIndex(), dto
                                     .getCharset());
@@ -96,6 +96,7 @@ public class ProxyWebParseUrl
                 @Override
                 public String handleResponse(final ClassicHttpResponse response) throws IOException
                 {
+                    String result = null;
                     final int status = response.getCode();
                     if (status >= HttpStatus.SC_SUCCESS && status < HttpStatus.SC_REDIRECTION)
                     {
@@ -105,15 +106,20 @@ public class ProxyWebParseUrl
                             return entity != null ? EntityUtils.toString(entity, charset) : null;
                         } catch (final ParseException ex)
                         {
-                            throw new ClientProtocolException(ex);
+                            log.error("解析服务器返回结果出现异常！");
                         }
                     } else
                     {
-                        throw new ClientProtocolException("Unexpected response status: " + status);
+                        log.error("请求：{}  >>>  未正常响应，服务器响应码：{}", url, status);
                     }
+                    return result;
                 }
             };
             final String responseBody = httpclient.execute(httpget, responseHandler);
+            if (StringUtil.isEmpty(responseBody))
+            {
+                return Stream.empty();
+            }
             Document doc = Jsoup.parse(responseBody);
             Element table = doc.getElementById(tableTag);
             if (Objects.equals("Class", tableTagType))
