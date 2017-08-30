@@ -26,6 +26,6 @@ public class ProxyController
     @GetMapping("/list")
     List<ProxyTestResult> list()
     {
-        return new ProxyListTest("https://www.facebook.com/").run();
+        return new ProxyListTest("http://www.141jav.com/latest/2017-08-27/").run();
     }
 }
