@@ -1,33 +1,28 @@
 package person.liuxx.movie.service.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSON;
-
-import person.liuxx.movie.config.ElConfig;
-import person.liuxx.movie.dto.ProxyWebDTO;
 import person.liuxx.movie.proxy.ProxyAddress;
 import person.liuxx.movie.proxy.ProxyTestResult;
 import person.liuxx.movie.proxy.ProxyTestTask;
-import person.liuxx.movie.proxy.ProxyWebParseUrl;
+import person.liuxx.movie.proxy.source.ProxySource;
 import person.liuxx.movie.service.ProxyTestService;
 import person.liuxx.util.log.LogUtil;
 
@@ -41,9 +36,8 @@ import person.liuxx.util.log.LogUtil;
 public class ProxyTestServiceImpl implements ProxyTestService
 {
     private Logger log = LogManager.getLogger();
-    @Autowired
-    private ElConfig config;
     private static AtomicBoolean taskIsRunning = new AtomicBoolean(false);
+    private static ConcurrentSkipListSet<ProxyAddress> addressSet = new ConcurrentSkipListSet<ProxyAddress>();
     private static Map<String, Long> map = new ConcurrentHashMap<>();
 
     @Override
@@ -58,7 +52,7 @@ public class ProxyTestServiceImpl implements ProxyTestService
     public List<ProxyTestResult> listTestResult(String targetAddress)
     {
         List<ProxyTestResult> result = new ArrayList<>();
-        List<ProxyAddress> info = readList();
+        Set<ProxyAddress> info = addressSet;
         ExecutorService executor = Executors.newFixedThreadPool(30);
         CompletionService<ProxyTestResult> service = new ExecutorCompletionService<ProxyTestResult>(
                 executor);
@@ -99,7 +93,7 @@ public class ProxyTestServiceImpl implements ProxyTestService
             }
             taskIsRunning.set(true);
             map.clear();
-            List<ProxyAddress> info = readList();
+            Set<ProxyAddress> info = addressSet;
             ExecutorService executor = Executors.newFixedThreadPool(30);
             CompletionService<ProxyTestResult> service = new ExecutorCompletionService<ProxyTestResult>(
                     executor);
@@ -130,21 +124,9 @@ public class ProxyTestServiceImpl implements ProxyTestService
         }
     }
 
-    private List<ProxyAddress> readList()
+    public void flushAddressList()
     {
-        List<ProxyAddress> result = new ArrayList<>();
-        try
-        {
-            String s = config.listProxyWebs();
-            List<ProxyWebDTO> list = JSON.parseArray(s, ProxyWebDTO.class);
-            result = list.stream()
-                    .flatMap(p -> ProxyWebParseUrl.createStream(p))
-                    .flatMap(u -> u.getProxyAddressStream())
-                    .collect(Collectors.toList());
-        } catch (IOException e)
-        {
-            log.error(LogUtil.errorInfo(e));
-        }
-        return result;
+        ProxySource.allSource().flatMap(s -> s.getProxyAddressStream()).forEach(a -> addressSet.add(
+                a));
     }
 }

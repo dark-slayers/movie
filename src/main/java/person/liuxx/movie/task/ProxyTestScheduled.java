@@ -21,6 +21,6 @@ public class ProxyTestScheduled
     @Scheduled(fixedRate = 600000)
     public void reportCurrentTime()
     {
-        proxyTestService.startTask("https://www.facebook.com/");
+        proxyTestService.flushAddressList();
     }
 }

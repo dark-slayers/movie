@@ -34,6 +34,7 @@ import person.liuxx.util.log.LogUtil;
  *          创建时间：2017年8月30日 下午1:29:11
  * @since 1.0.0
  */
+@Deprecated
 public class ProxyWebParseUrl
 {
     private Logger log = LogManager.getLogger();

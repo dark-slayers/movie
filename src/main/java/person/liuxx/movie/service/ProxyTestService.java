@@ -18,4 +18,6 @@ public interface ProxyTestService
     Map<String, Long> mapTestResult(String targetAddress);
 
     void startTask(String targetAddress);
+
+    void flushAddressList();
 }
