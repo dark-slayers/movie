@@ -1,9 +1,8 @@
 package person.liuxx.movie.service;
 
 import java.util.List;
-import java.util.Map;
 
-import person.liuxx.movie.proxy.ProxyTestResult;
+import person.liuxx.movie.domain.ProxyAddressDO;
 
 /**
  * @author 刘湘湘
@@ -13,11 +12,15 @@ import person.liuxx.movie.proxy.ProxyTestResult;
  */
 public interface ProxyTestService
 {
-    List<ProxyTestResult> listTestResult(String targetAddress);
-
-    Map<String, Long> mapTestResult(String targetAddress);
-
-    void startTask(String targetAddress);
+    List<ProxyAddressDO> listAddress();
 
     void flushAddressList();
+
+    /**
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2017年9月4日 下午4:19:26
+     * @since 1.0.0
+     */
+    void testAddressList();
 }

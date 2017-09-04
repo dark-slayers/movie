@@ -1,6 +1,6 @@
 package person.liuxx.movie.controller;
 
-import java.util.Map;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import person.liuxx.movie.domain.ProxyAddressDO;
 import person.liuxx.movie.service.ProxyTestService;
 
 /**
@@ -27,8 +28,8 @@ public class ProxyController
 
     @ApiOperation(value = "获取代理地址列表的测试结果", notes = "获取测试代理后的测试结果")
     @GetMapping("/list")
-    Map<String, Long> list()
+    List<ProxyAddressDO> list()
     {
-        return proxyTestService.mapTestResult("https://www.facebook.com/");
+        return proxyTestService.listAddress();
     }
 }

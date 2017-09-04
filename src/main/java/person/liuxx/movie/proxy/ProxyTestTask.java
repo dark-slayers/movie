@@ -88,6 +88,7 @@ public class ProxyTestTask implements Callable<ProxyTestResult>
             return new ProxyTestResult(address, time);
         } catch (IOException | URISyntaxException e)
         {
+            log.error("测试未通过，测试的代理地址：{}，目标地址：{}", address, targetAddress);
             log.error(LogUtil.errorInfo(e));
         }
         log.warn("测试未通过 !");

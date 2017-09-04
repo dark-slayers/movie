@@ -22,5 +22,6 @@ public class ProxyTestScheduled
     public void reportCurrentTime()
     {
         proxyTestService.flushAddressList();
+        proxyTestService.testAddressList();
     }
 }

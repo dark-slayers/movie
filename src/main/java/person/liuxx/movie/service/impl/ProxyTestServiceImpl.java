@@ -1,13 +1,12 @@
 package person.liuxx.movie.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
@@ -17,13 +16,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import person.liuxx.movie.dao.ProxyAddressRepository;
+import person.liuxx.movie.domain.ProxyAddressDO;
 import person.liuxx.movie.proxy.ProxyAddress;
 import person.liuxx.movie.proxy.ProxyTestResult;
 import person.liuxx.movie.proxy.ProxyTestTask;
 import person.liuxx.movie.proxy.source.ProxySource;
 import person.liuxx.movie.service.ProxyTestService;
+import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.log.LogUtil;
 
 /**
@@ -36,70 +39,41 @@ import person.liuxx.util.log.LogUtil;
 public class ProxyTestServiceImpl implements ProxyTestService
 {
     private Logger log = LogManager.getLogger();
-    private static AtomicBoolean taskIsRunning = new AtomicBoolean(false);
+    @Autowired
+    private ProxyAddressRepository proxyAddressDao;
+    private static AtomicBoolean testIsRunning = new AtomicBoolean(false);
+    private static AtomicBoolean addressIsFlushing = new AtomicBoolean(false);
+    private static CountDownLatch hasList = new CountDownLatch(1);
     private static ConcurrentSkipListSet<ProxyAddress> addressSet = new ConcurrentSkipListSet<ProxyAddress>();
-    private static Map<String, Long> map = new ConcurrentHashMap<>();
+    private static final String DEFAULT_TARGET_URL = "https://www.facebook.com/";
+    private String targetUrl;
 
     @Override
-    public Map<String, Long> mapTestResult(String targetAddress)
+    public List<ProxyAddressDO> listAddress()
     {
-        Map<String, Long> result = new HashMap<>();
-        result.putAll(map);
-        return result;
+        return proxyAddressDao.findAll();
     }
 
     @Override
-    public List<ProxyTestResult> listTestResult(String targetAddress)
+    public void testAddressList()
     {
-        List<ProxyTestResult> result = new ArrayList<>();
-        Set<ProxyAddress> info = addressSet;
-        ExecutorService executor = Executors.newFixedThreadPool(30);
-        CompletionService<ProxyTestResult> service = new ExecutorCompletionService<ProxyTestResult>(
-                executor);
-        for (final ProxyAddress p : info)
-        {
-            service.submit(new ProxyTestTask(p, targetAddress));
-        }
         try
         {
-            for (int i = 0, max = info.size(); i < max; i++)
-            {
-                Future<ProxyTestResult> f = service.take();
-                ProxyTestResult r = f.get();
-                if (r.getTime() > 0)
-                {
-                    result.add(r);
-                }
-            }
-            result.stream().forEach(r -> log.info("测试结果：{}", r));
-        } catch (ExecutionException e)
+            hasList.await();
+        } catch (InterruptedException e1)
         {
-            log.error(LogUtil.errorInfo(e));
-        } catch (InterruptedException e)
-        {
-            log.error(LogUtil.errorInfo(e));
+            log.error(LogUtil.errorInfo(e1));
         }
-        return result;
-    }
-
-    @Override
-    public void startTask(String targetAddress)
-    {
-        synchronized (map)
+        if (testIsRunning.compareAndSet(false, true))
         {
-            if (taskIsRunning.get())
-            {
-                return;
-            }
-            taskIsRunning.set(true);
-            map.clear();
+            log.info("运行代理列表的有效性测试...");
             Set<ProxyAddress> info = addressSet;
             ExecutorService executor = Executors.newFixedThreadPool(30);
             CompletionService<ProxyTestResult> service = new ExecutorCompletionService<ProxyTestResult>(
                     executor);
             for (final ProxyAddress p : info)
             {
-                service.submit(new ProxyTestTask(p, targetAddress));
+                service.submit(new ProxyTestTask(p, getTargetUrl()));
             }
             try
             {
@@ -109,24 +83,61 @@ public class ProxyTestServiceImpl implements ProxyTestService
                     ProxyTestResult r = f.get();
                     if (r.getTime() > 0)
                     {
-                        map.put(r.getAddress().getHost() + ":" + r.getAddress().getPort(), r
-                                .getTime());
+                        Optional<ProxyAddressDO> optional = proxyAddressDao.findByHostAndPort(r
+                                .getAddress().getHost(), r.getAddress().getPort());
+                        if (optional.isPresent())
+                        {
+                            proxyAddressDao.setLastTestUrlAndLastUsableTimeAndUseTimeById(
+                                    getTargetUrl(), LocalDateTime.now(), r.getTime(), optional.get()
+                                            .getId());
+                        } else
+                        {
+                            ProxyAddressDO address = new ProxyAddressDO();
+                            address.setHost(r.getAddress().getHost());
+                            address.setPort(r.getAddress().getPort());
+                            address.setLastTestUrl(getTargetUrl());
+                            address.setLastUsableTime(LocalDateTime.now());
+                            address.setUseTime(r.getTime());
+                            proxyAddressDao.save(address);
+                        }
                     }
                 }
-                taskIsRunning.set(false);
             } catch (ExecutionException e)
             {
                 log.error(LogUtil.errorInfo(e));
             } catch (InterruptedException e)
             {
                 log.error(LogUtil.errorInfo(e));
+            } finally
+            {
+                testIsRunning.set(false);
             }
+            log.info("代理列表的有效性测试完毕！");
         }
     }
 
+    @Override
     public void flushAddressList()
     {
-        ProxySource.allSource().flatMap(s -> s.getProxyAddressStream()).forEach(a -> addressSet.add(
-                a));
+        if (addressIsFlushing.compareAndSet(false, true))
+        {
+            log.info("刷新缓存的代理地址列表...");
+            ProxySource.allSource().flatMap(s -> s.getProxyAddressStream()).forEach(a -> addressSet
+                    .add(a));
+            addressIsFlushing.set(false);
+            hasList.countDown();
+            log.info("缓存的代理地址列表刷新完毕！");
+            log.info("最新获取的代理地址列表：{}", addressSet);
+        }
+    }
+
+    public String getTargetUrl()
+    {
+        return StringUtil.isEmpty(targetUrl) ? DEFAULT_TARGET_URL : targetUrl;
+    }
+
+    public void setTargetUrl(String targetUrl)
+    {
+        this.targetUrl = targetUrl;
     }
 }

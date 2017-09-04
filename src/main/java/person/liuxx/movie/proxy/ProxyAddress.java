@@ -1,12 +1,14 @@
 package person.liuxx.movie.proxy;
 
+import com.google.common.base.Objects;
+
 /**
  * @author 刘湘湘
  * @version 1.0.0<br>
  *          创建时间：2017年8月29日 下午2:21:54
  * @since 1.0.0
  */
-public class ProxyAddress
+public class ProxyAddress implements Comparable<ProxyAddress>
 {
     private final String host;
     private final int port;
@@ -62,5 +64,17 @@ public class ProxyAddress
     public String toString()
     {
         return "ProxyAddress [host=" + host + ", port=" + port + "]";
+    }
+
+    @Override
+    public int compareTo(ProxyAddress o)
+    {
+        if (Objects.equal(host, o.getHost()))
+        {
+            return ((Integer) port).compareTo(o.getPort());
+        } else
+        {
+            return host.compareTo(o.getHost());
+        }
     }
 }
