@@ -35,6 +35,7 @@ public abstract class ProxySource
         List<ProxySource> list = new ArrayList<>();
         list.add(new ProxySource31f());
         list.add(new ProxySource66());
+        list.add(new ProxySourceGoubanjia());
         return list.stream();
     }
 
@@ -53,7 +54,7 @@ public abstract class ProxySource
 
     protected abstract Elements parseTrs(Document doc);
 
-    private Stream<ProxyAddress> trsToProxyAddressStream(Elements trs)
+    protected Stream<ProxyAddress> trsToProxyAddressStream(Elements trs)
     {
         return trs.stream()
                 .map(tr -> tr.text())
