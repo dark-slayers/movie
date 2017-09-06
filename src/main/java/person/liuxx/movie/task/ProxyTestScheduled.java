@@ -15,13 +15,27 @@ import person.liuxx.movie.service.ProxyTestService;
 @Service
 public class ProxyTestScheduled
 {
+    private static final int TEN_MINUTES = 1000 * 60 * 10;
+    private static final int ONE_HOUR = 1000 * 60 * 60;
+    private static final int THREE_HOURS = 1000 * 60 * 60 * 3;
     @Autowired
     private ProxyTestService proxyTestService;
 
-    @Scheduled(fixedRate = 600000)
-    public void reportCurrentTime()
+    @Scheduled(fixedRate = TEN_MINUTES)
+    public void flushAddressList()
     {
         proxyTestService.flushAddressList();
-        proxyTestService.testAddressList();
+    }
+
+    @Scheduled(fixedRate = ONE_HOUR)
+    public void testCacheAddressList()
+    {
+        proxyTestService.testCacheAddressList();
+    }
+
+    @Scheduled(fixedRate = THREE_HOURS)
+    public void testDatabaseAddressList()
+    {
+        proxyTestService.testDatabaseAddressList();
     }
 }
