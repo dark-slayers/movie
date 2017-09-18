@@ -144,17 +144,23 @@ public class ProxySourceKuai extends ProxySource
             final int status = response.getCode();
             if (status >= HttpStatus.SC_SUCCESS && status < HttpStatus.SC_REDIRECTION)
             {
-                log.info("获取服务器相应：{}", status);
                 final HttpEntity entity = response.getEntity();
                 String body = entity != null ? EntityUtils.toString(entity, "UTF-8") : null;
                 return Optional.ofNullable(body);
             } else
             {
+                log.warn("服务器响应码：{}", status);
                 final HttpEntity entity = response.getEntity();
                 String body = entity != null ? EntityUtils.toString(entity) : null;
                 Script script = new Script(body);
-                cookie = response.getSingleHeader("Set-Cookie").getValue().split(";")[0] + "; "
-                        + script.getA().getCookie();
+                if (response.containsHeader("Set-Cookie"))
+                {
+                    cookie = response.getSingleHeader("Set-Cookie").getValue().split(";")[0] + "; "
+                            + script.getA().getCookie();
+                } else
+                {
+                    log.warn("服务器响应码：{},无法设置cookie！", status);
+                }
                 return Optional.empty();
             }
         }
