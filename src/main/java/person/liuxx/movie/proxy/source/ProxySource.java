@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -20,6 +22,7 @@ import person.liuxx.movie.util.HttpClientUtil;
  */
 public abstract class ProxySource
 {
+    protected Logger log = LogManager.getLogger();
     protected String[] urls;
     protected int ipIndex;
     protected int portIndex;
@@ -36,10 +39,11 @@ public abstract class ProxySource
         list.add(new ProxySource31f());
         list.add(new ProxySource66());
         list.add(new ProxySourceGoubanjia());
+        list.add(new ProxySourceKuai());
         return list.stream();
     }
 
-    private Stream<ProxyAddress> parseUrl(String url)
+    protected Stream<ProxyAddress> parseUrl(String url)
     {
         Optional<String> body = HttpClientUtil.simpleGet(url);
         Stream<ProxyAddress> result = body.map(b ->
