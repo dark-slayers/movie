@@ -58,8 +58,7 @@ public class MovieController
         });
     }
 
-    @ExceptionHandler(
-    { MovieSaveFailedException.class, })
+    @ExceptionHandler(Exception.class)
     public ErrorResponse exceptionHandler(Exception e)
     {
         log.error(LogUtil.errorInfo(e));

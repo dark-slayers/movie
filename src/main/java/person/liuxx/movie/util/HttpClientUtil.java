@@ -12,10 +12,13 @@ import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.sync.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.sync.HttpClients;
 import org.apache.hc.client5.http.sync.methods.HttpGet;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.io.ResponseHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.log.LogUtil;
 
 /**
@@ -48,8 +51,7 @@ public class HttpClientUtil
         return Optional.empty();
     }
 
-    public static Optional<String> cookieGet(String url,
-            ResponseHandler<Optional<String>> responseHandler, String cookie)
+    public static Optional<String> cookieGet(String url, String cookie)
     {
         try (CloseableHttpClient httpclient = HttpClients.createDefault())
         {
@@ -74,28 +76,37 @@ public class HttpClientUtil
                     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
             httpget.addHeader("Accept-Language", "zh-CN,zh;q=0.8");
             httpget.addHeader("Accept-Encoding", "gzip, deflate");
-            Optional<String> op = httpclient.execute(httpget, responseHandler);
-            Optional<String> op2 = Optional.empty();
-            String responseBody = "";
-            if (!op.isPresent())
+            if (!StringUtil.isEmpty(cookie))
             {
                 httpget.addHeader("Cookie", cookie);
-                op2 = httpclient.execute(httpget, responseHandler);
-                if (!op2.isPresent())
-                {
-                    log.warn("无法获取服务器响应！");
-                    return Optional.empty();
-                }
-                responseBody = op2.get();
-            } else
-            {
-                responseBody = op.get();
             }
-        } catch (IOException e)
+            log.info("Executing request {} -> {}", httpget.getMethod(), httpget.getUri());
+            final ResponseHandler<Optional<String>> responseHandler = new ResponseHandler<Optional<String>>()
+            {
+                @Override
+                public Optional<String> handleResponse(ClassicHttpResponse response)
+                        throws HttpException, IOException
+                {
+                    // TODO 自动生成的方法存根
+                    return null;
+                }
+            };
+            Optional<String> op = httpclient.execute(httpget, responseHandler);
+            if (op.isPresent())
+            {
+                return op;
+            }
+            httpget.addHeader("Cookie", cookie);
+            Optional<String> op2 = httpclient.execute(httpget, responseHandler);
+            if (op2.isPresent())
+            {
+                return op2;
+            }
+        } catch (IOException | URISyntaxException e)
         {
-            // TODO 自动生成的 catch 块
-            e.printStackTrace();
+            log.error(LogUtil.errorInfo(e));
         }
+        log.warn("无法获取服务器的正确响应！");
         return Optional.empty();
     }
 }
