@@ -87,7 +87,6 @@ public class HttpClientUtil
                 public Optional<String> handleResponse(ClassicHttpResponse response)
                         throws HttpException, IOException
                 {
-                    // TODO 自动生成的方法存根
                     return null;
                 }
             };

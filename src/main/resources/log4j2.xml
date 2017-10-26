@@ -2,7 +2,9 @@
 <configuration status="error">
 	<Properties>
 		<Property name="log_dir">D:/logs/movie</Property>
-		<Property name="log_text">%d{yyyy-MM-dd 'at' HH:mm:ss SSS} [%-5level] %class{36} (%M) :%L -> %msg%xEx%n</Property>
+		<Property name="log_text">
+		    %d{yyyy-MM-dd 'at' HH:mm:ss SSS} [%-5level] %class{36} (%M) :%L -> %msg%xEx%n
+		</Property>
 	</Properties>
 	<appenders>
 		<!--输出控制台的配置 -->
@@ -18,7 +20,7 @@
 			name="DebugFile"
 			fileName="${log_dir}/DEBUG.log"
 			filePattern="${log_dir}/%d{yyyy-MM}/DEBUG-%d{MM-dd-yyyy}-%i.log.gz">
-			<PatternLayout                       
+			<PatternLayout
 				charset="UTF-8"
 				pattern="${log_text}" />
 			<SizeBasedTriggeringPolicy size="100MB" />
@@ -69,6 +71,20 @@
 		</Logger>
 		<Logger
 			name="org.springframework"
+			level="WARN"
+			additivity="false">
+			<AppenderRef ref="DebugFile" />
+			<AppenderRef ref="InfoFile" />
+			<AppenderRef ref="WarnFile" />
+			<AppenderRef
+				ref="ErrorFile"
+				level="ERROR" />
+			<AppenderRef
+				ref="Console"
+				level="INFO" />
+		</Logger>
+		<Logger
+			name="org.apache"
 			level="WARN"
 			additivity="false">
 			<AppenderRef ref="DebugFile" />

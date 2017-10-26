@@ -19,6 +19,8 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.ResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -237,6 +239,7 @@ class Script
 {
     private String script;
     private String text;
+    private Logger log = LogManager.getLogger();
 
     /**
      * @param group
@@ -248,6 +251,7 @@ class Script
 
     A getA()
     {
+        log.debug("script:{}", script);
         A a = new A();
         int endIndex = script.indexOf(")\",");
         text = script.substring(0, endIndex).trim();

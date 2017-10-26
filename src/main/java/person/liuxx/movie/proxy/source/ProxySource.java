@@ -39,7 +39,7 @@ public abstract class ProxySource
         list.add(new ProxySource31f());
         list.add(new ProxySource66());
         list.add(new ProxySourceGoubanjia());
-        list.add(new ProxySourceKuai());
+        list.add(new ProxySourceXiCi());
         return list.stream();
     }
 
