@@ -12,7 +12,7 @@ public class MovieDTO
     private String path;
     private int level;
     private String actress;
-    private String uniform;
+    private String label;
 
     public String getCode()
     {
@@ -54,20 +54,20 @@ public class MovieDTO
         this.actress = actress;
     }
 
-    public String getUniform()
+    public String getLabel()
     {
-        return uniform;
+        return label;
     }
 
-    public void setUniform(String uniform)
+    public void setLabel(String label)
     {
-        this.uniform = uniform;
+        this.label = label;
     }
 
     @Override
     public String toString()
     {
         return "MovieDTO [code=" + code + ", path=" + path + ", level=" + level + ", actress="
-                + actress + ", uniform=" + uniform + "]";
+                + actress + ", label=" + label + "]";
     }
 }

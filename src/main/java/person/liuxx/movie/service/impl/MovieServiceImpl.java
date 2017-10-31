@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import person.liuxx.movie.dao.MovieRepository;
 import person.liuxx.movie.domain.MovieDO;
 import person.liuxx.movie.dto.MovieDTO;
+import person.liuxx.movie.manager.MovieManager;
 import person.liuxx.movie.service.MovieService;
 
 /**
@@ -21,12 +22,13 @@ public class MovieServiceImpl implements MovieService
 {
     @Autowired
     private MovieRepository movieDao;
+    @Autowired
+    private MovieManager movieManager;
 
     @Override
     public Optional<MovieDO> save(MovieDTO movie)
     {
-        Optional<MovieDO> movieOptional = MovieDO.createOptional(movie);
-        Optional<MovieDO> result = movieOptional.map(m -> movieDao.save(m));
+        Optional<MovieDO> result = movieManager.format(movie).map(m -> movieDao.save(m));
         return result;
     }
 }

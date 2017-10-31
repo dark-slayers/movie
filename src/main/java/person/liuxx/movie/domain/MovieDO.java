@@ -1,17 +1,10 @@
 package person.liuxx.movie.domain;
 
-import java.nio.file.Paths;
-import java.util.Optional;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import person.liuxx.movie.dto.MovieDTO;
-import person.liuxx.util.base.StringUtil;
-import person.liuxx.util.file.FileUtil;
 
 /**
  * @author 刘湘湘
@@ -31,43 +24,7 @@ public class MovieDO
     private String path;
     private int level;
     private String actress;
-    private String uniform;
-
-    /**
-     * 使用MovieDTO对象的相关信息，创建一个没有id信息的MovieDO对象<br>
-     * 创建之前会对数据有效性进行检查，检查未通过则返回Optional.empty()
-     * 
-     * @author 刘湘湘
-     * @version 1.0.0<br>
-     *          创建时间：2017年8月28日 下午4:17:31
-     * @since 1.0.0
-     * @param movieDTO
-     * @return
-     */
-    public static Optional<MovieDO> createOptional(MovieDTO movieDTO)
-    {
-        Optional<MovieDO> o = Optional.ofNullable(movieDTO).map(m ->
-        {
-            if (StringUtil.isAnyEmpty(m.getCode(), m.getPath()))
-            {
-                return null;
-            }
-            if (!FileUtil.existsDir(Paths.get(m.getPath())))
-            {
-                return null;
-            }
-            MovieDO result = new MovieDO();
-            result.setCode(m.getCode());
-            result.setLevel(m.getLevel());
-            result.setPath(m.getPath());
-            String tempActress = StringUtil.isEmpty(m.getActress()) ? "UNKNOWN" : m.getActress();
-            result.setActress(tempActress);
-            String tempUniform = StringUtil.isEmpty(m.getUniform()) ? "UNKNOWN" : m.getUniform();
-            result.setUniform(tempUniform);
-            return result;
-        });
-        return o;
-    }
+    private String label;
 
     public MovieDO()
     {
@@ -123,20 +80,20 @@ public class MovieDO
         this.actress = actress;
     }
 
-    public String getUniform()
+    public String getLabel()
     {
-        return uniform;
+        return label;
     }
 
-    public void setUniform(String uniform)
+    public void setLabel(String label)
     {
-        this.uniform = uniform;
+        this.label = label;
     }
 
     @Override
     public String toString()
     {
-        return "MovDO [id=" + id + ", code=" + code + ", path=" + path + ", level=" + level
-                + ", actress=" + actress + ", uniform=" + uniform + "]";
+        return "MovieDO [id=" + id + ", code=" + code + ", path=" + path + ", level=" + level
+                + ", actress=" + actress + ", label=" + label + "]";
     }
 }
