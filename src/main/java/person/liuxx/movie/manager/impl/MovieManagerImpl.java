@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
 
@@ -20,6 +21,7 @@ import person.liuxx.movie.domain.MovieDO;
 import person.liuxx.movie.dto.MovieDTO;
 import person.liuxx.movie.manager.MovieManager;
 import person.liuxx.util.base.StringUtil;
+import person.liuxx.util.file.FileName;
 import person.liuxx.util.file.FileUtil;
 import person.liuxx.util.log.LogUtil;
 
@@ -29,27 +31,17 @@ import person.liuxx.util.log.LogUtil;
  *          创建时间：2017年10月31日 下午2:50:50
  * @since 1.0.0
  */
+@Service
 public class MovieManagerImpl implements MovieManager
 {
-    Logger log = LoggerFactory.getLogger(MovieManagerImpl.class);
+    private Logger log = LoggerFactory.getLogger(MovieManagerImpl.class);
     @Autowired
     private ElConfig ruleConfig;
 
     @Override
     public Optional<MovieDO> format(MovieDTO movieFile)
     {
-        return Optional.ofNullable(movieFile).filter(m -> isValid(m)).map(m ->
-        {
-            MovieDO result = new MovieDO();
-            result.setCode(m.getCode().toUpperCase());
-            result.setLevel(m.getLevel());
-            result.setPath(m.getPath());
-            String tempActress = StringUtil.isEmpty(m.getActress()) ? "UNKNOWN" : m.getActress();
-            result.setActress(tempActress);
-            String tempLabel = StringUtil.isEmpty(m.getLabel()) ? "UNKNOWN" : m.getLabel();
-            result.setLabel(tempLabel);
-            return result;
-        });
+        return Optional.ofNullable(movieFile).filter(m -> isValid(m)).flatMap(m -> move(m));
     }
 
     private boolean isValid(MovieDTO movieFile)
@@ -61,24 +53,28 @@ public class MovieManagerImpl implements MovieManager
                 .isPresent();
     }
 
-    private MovieDO move(MovieDTO movieFile)
+    private Optional<MovieDO> move(MovieDTO movieFile)
     {
+        log.info("移动指定的视频文件...");
+        String code = movieFile.getCode().toUpperCase();
         List<PathRule> ruleList = ruleConfig.listPathRule()
                 .map(r -> JSON.parseArray(r, PathRule.class))
                 .orElse(new ArrayList<>());
         Optional<Path> targetPath = ruleList.stream()
                 .filter(r -> Objects.equals(r.getActress(), movieFile.getActress()))
                 .findAny()
-                .map(r -> Paths.get(r.getPath(), movieFile.getLevel() + ""));
+                .map(r -> Paths.get(r.getPath(), String.valueOf(movieFile.getLevel()), code));
         Path movieFilePath = Paths.get(movieFile.getPath());
-        String code = movieFile.getCode().toUpperCase();
-        targetPath.map(p ->
+        FileName movieFileName = FileUtil.getFileName(movieFilePath).get();
+        Optional<MovieDO> op = targetPath.map(p ->
         {
             if (!Files.exists(p))
             {
                 try
                 {
                     Files.createDirectories(p);
+                    Files.move(movieFilePath, Paths.get(p.toString(), code + "." + movieFileName
+                            .getExtension()));
                     // movieFilePath.toFile().renameTo(code);
                 } catch (Exception e)
                 {
@@ -97,16 +93,6 @@ public class MovieManagerImpl implements MovieManager
             result.setLabel(tempLabel);
             return result;
         });
-        MovieDO result = new MovieDO();
-        result.setCode(movieFile.getCode().toUpperCase());
-        result.setLevel(movieFile.getLevel());
-        result.setPath(movieFile.getPath());
-        String tempActress = StringUtil.isEmpty(movieFile.getActress()) ? "UNKNOWN"
-                : movieFile.getActress();
-        result.setActress(tempActress);
-        String tempLabel = StringUtil.isEmpty(movieFile.getLabel()) ? "UNKNOWN"
-                : movieFile.getLabel();
-        result.setLabel(tempLabel);
-        return result;
+        return op;
     }
 }

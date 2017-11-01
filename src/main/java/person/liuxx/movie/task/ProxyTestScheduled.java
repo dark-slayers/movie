@@ -24,18 +24,18 @@ public class ProxyTestScheduled
     @Scheduled(fixedRate = TEN_MINUTES)
     public void flushAddressList()
     {
-        proxyTestService.flushAddressList();
+//        proxyTestService.flushAddressList();
     }
 
     @Scheduled(fixedRate = ONE_HOUR)
     public void testCacheAddressList()
     {
-        proxyTestService.testCacheAddressList();
+//        proxyTestService.testCacheAddressList();
     }
 
     @Scheduled(fixedRate = THREE_HOURS)
     public void testDatabaseAddressList()
     {
-        proxyTestService.testDatabaseAddressList();
+//        proxyTestService.testDatabaseAddressList();
     }
 }

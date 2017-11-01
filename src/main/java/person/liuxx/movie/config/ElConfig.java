@@ -11,6 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
+import person.liuxx.movie.service.impl.MovieServiceImpl;
 import person.liuxx.util.log.LogUtil;
 
 /**
@@ -23,7 +24,7 @@ import person.liuxx.util.log.LogUtil;
 @ComponentScan
 public class ElConfig
 {
-    Logger log = LoggerFactory.getLogger(ElConfig.class);
+    private Logger log = LoggerFactory.getLogger(MovieServiceImpl.class);
     @Value("classpath:proxywebs.json")
     private Resource proxyWebs;
     @Value("classpath:path_rule.json")
@@ -46,6 +47,7 @@ public class ElConfig
             log.error("从配置文件path_rule.json中获取信息失败！");
             log.error(LogUtil.errorInfo(e));
         }
+        log.debug("解析结果：{}", result.get());
         return result;
     }
 }

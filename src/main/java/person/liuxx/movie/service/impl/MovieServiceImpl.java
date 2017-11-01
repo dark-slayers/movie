@@ -2,6 +2,8 @@ package person.liuxx.movie.service.impl;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +11,7 @@ import person.liuxx.movie.dao.MovieRepository;
 import person.liuxx.movie.domain.MovieDO;
 import person.liuxx.movie.dto.MovieDTO;
 import person.liuxx.movie.manager.MovieManager;
+
 import person.liuxx.movie.service.MovieService;
 
 /**
@@ -20,6 +23,7 @@ import person.liuxx.movie.service.MovieService;
 @Service
 public class MovieServiceImpl implements MovieService
 {
+    private Logger log = LoggerFactory.getLogger(MovieServiceImpl.class);
     @Autowired
     private MovieRepository movieDao;
     @Autowired
@@ -28,6 +32,7 @@ public class MovieServiceImpl implements MovieService
     @Override
     public Optional<MovieDO> save(MovieDTO movie)
     {
+        log.info("添加新的视频文件：{}", movie);
         Optional<MovieDO> result = movieManager.format(movie).map(m -> movieDao.save(m));
         return result;
     }

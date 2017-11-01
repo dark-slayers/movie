@@ -21,9 +21,13 @@ public class MovieDO
     private Long id;
     @Column(unique = true, nullable = false, length = 50)
     private String code;
+    @Column(length = 50)
     private String path;
+    @Column(length = 2)
     private int level;
+    @Column(length = 20)
     private String actress;
+    @Column(length = 10)
     private String label;
 
     public MovieDO()
