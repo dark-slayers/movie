@@ -1,5 +1,6 @@
 package person.liuxx.movie.manager.impl;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,23 +65,9 @@ public class MovieManagerImpl implements MovieManager
                 .filter(r -> Objects.equals(r.getActress(), movieFile.getActress()))
                 .findAny()
                 .map(r -> Paths.get(r.getPath(), String.valueOf(movieFile.getLevel()), code));
-        Path movieFilePath = Paths.get(movieFile.getPath());
-        FileName movieFileName = FileUtil.getFileName(movieFilePath).get();
         Optional<MovieDO> op = targetPath.map(p ->
         {
-            if (!Files.exists(p))
-            {
-                try
-                {
-                    Files.createDirectories(p);
-                    Files.move(movieFilePath, Paths.get(p.toString(), code + "." + movieFileName
-                            .getExtension()));
-                    // movieFilePath.toFile().renameTo(code);
-                } catch (Exception e)
-                {
-                    log.error(LogUtil.errorInfo(e));
-                }
-            }
+            move(Paths.get(movieFile.getPath()), p, code);
             MovieDO result = new MovieDO();
             result.setCode(code);
             result.setLevel(movieFile.getLevel());
@@ -94,5 +81,31 @@ public class MovieManagerImpl implements MovieManager
             return result;
         });
         return op;
+    }
+
+    private void move(Path source, Path target, String code)
+    {
+        try
+        {
+            FileName movieFileName = FileUtil.getFileName(source).get();
+            FileName picFileName = Files.walk(source.getParent())
+                    .filter(p -> Objects.equals(source.getParent(), p.getParent()))
+                    .filter(p -> FileUtil.existsFile(p))
+                    .findFirst()
+                    .flatMap(p -> FileUtil.getFileName(p))
+                    .filter(p -> Objects.equals(p.getExtension(), "jpg"))
+                    .get();
+            if (!Files.exists(target))
+            {
+                Files.createDirectories(target);
+                Files.move(source, Paths.get(target.toString(), code + "." + movieFileName
+                        .getExtension()));
+                Files.move(Paths.get(source.getParent().toString(), picFileName.toString()), Paths
+                        .get(target.toString(), code + "." + picFileName.getExtension()));
+            }
+        } catch (IOException e)
+        {
+            log.error(LogUtil.errorInfo(e));
+        }
     }
 }
