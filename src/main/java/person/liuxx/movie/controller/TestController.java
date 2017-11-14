@@ -1,8 +1,5 @@
 package person.liuxx.movie.controller;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import person.liuxx.movie.config.ElConfig;
-import person.liuxx.movie.proxy.ProxyAddress;
-import person.liuxx.movie.proxy.source.ProxySource;
 
 /**
  * @author 刘湘湘
@@ -29,10 +24,7 @@ public class TestController
     @GetMapping("/test")
     public String test()
     {
-        Set<ProxyAddress> list = ProxySource.allSource()
-                .flatMap(s -> s.getProxyAddressStream())
-                .collect(Collectors.toSet());
-        log.info("ProxyWebParseUrl : {}", list);
-        return "TEST OVER !\n" + list;
+        log.info("ProxyWebParseUrl : {}");
+        return "TEST OVER !\n";
     }
 }
