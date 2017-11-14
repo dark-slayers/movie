@@ -91,9 +91,10 @@ public class MovieManagerImpl implements MovieManager
             FileName picFileName = Files.walk(source.getParent())
                     .filter(p -> Objects.equals(source.getParent(), p.getParent()))
                     .filter(p -> FileUtil.existsFile(p))
-                    .findFirst()
-                    .flatMap(p -> FileUtil.getFileName(p))
+                    .map(p -> FileUtil.getFileName(p).orElse(null))
+                    .filter(p -> Objects.nonNull(p))
                     .filter(p -> Objects.equals(p.getExtension(), "jpg"))
+                    .findFirst()
                     .get();
             if (!Files.exists(target))
             {
@@ -103,6 +104,7 @@ public class MovieManagerImpl implements MovieManager
                 Files.move(Paths.get(source.getParent().toString(), picFileName.toString()), Paths
                         .get(target.toString(), code + "." + picFileName.getExtension()));
             }
+            Files.deleteIfExists(source.getParent());
         } catch (IOException e)
         {
             log.error(LogUtil.errorInfo(e));
