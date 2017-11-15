@@ -20,11 +20,11 @@ import person.liuxx.movie.business.path.PathRule;
 import person.liuxx.movie.config.ElConfig;
 import person.liuxx.movie.domain.MovieDO;
 import person.liuxx.movie.dto.MovieDTO;
+import person.liuxx.movie.exception.MovieSaveFailedException;
 import person.liuxx.movie.manager.MovieManager;
 import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.file.FileName;
 import person.liuxx.util.file.FileUtil;
-import person.liuxx.util.log.LogUtil;
 
 /**
  * @author 刘湘湘
@@ -47,6 +47,7 @@ public class MovieManagerImpl implements MovieManager
 
     private boolean isValid(MovieDTO movieFile)
     {
+        log.info("验证输入信息的有效性...");
         return Optional.ofNullable(movieFile)
                 .filter(m -> !StringUtil.isBlank(m.getCode()))
                 .filter(m -> !StringUtil.isBlank(m.getPath()))
@@ -56,7 +57,7 @@ public class MovieManagerImpl implements MovieManager
 
     private Optional<MovieDO> move(MovieDTO movieFile)
     {
-        log.info("移动指定的视频文件...");
+        log.info("查询分类规则，将视频移动至预设位置..");
         String code = movieFile.getCode().toUpperCase();
         List<PathRule> ruleList = ruleConfig.listPathRule()
                 .map(r -> JSON.parseArray(r, PathRule.class))
@@ -87,6 +88,8 @@ public class MovieManagerImpl implements MovieManager
     {
         try
         {
+            log.info("检查视频目录中是否存在图片文件...");
+            ;
             FileName movieFileName = FileUtil.getFileName(source).get();
             FileName picFileName = Files.walk(source.getParent())
                     .filter(p -> Objects.equals(source.getParent(), p.getParent()))
@@ -96,6 +99,7 @@ public class MovieManagerImpl implements MovieManager
                     .filter(p -> Objects.equals(p.getExtension(), "jpg"))
                     .findFirst()
                     .get();
+            log.info("移动视频文件和图片文件...");
             if (!Files.exists(target))
             {
                 Files.createDirectories(target);
@@ -103,11 +107,15 @@ public class MovieManagerImpl implements MovieManager
                         .getExtension()));
                 Files.move(Paths.get(source.getParent().toString(), picFileName.toString()), Paths
                         .get(target.toString(), code + "." + picFileName.getExtension()));
+                log.info("移动视频文件和图片文件成功，删除源文件夹！");
+                Files.deleteIfExists(source.getParent());
+            } else
+            {
+                throw new MovieSaveFailedException("目标文件夹已经存在！");
             }
-            Files.deleteIfExists(source.getParent());
         } catch (IOException e)
         {
-            log.error(LogUtil.errorInfo(e));
+            throw new MovieSaveFailedException("添加视频失败！", e);
         }
     }
 }

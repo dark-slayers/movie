@@ -1,6 +1,5 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
-src/main/resources/static/views
 src/main/resources/path_rule.json
 
 ### STS ###

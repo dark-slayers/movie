@@ -60,12 +60,10 @@
 			additivity="false">
 			<AppenderRef
 				ref="ErrorFile"
-				level="ERROR"
-				additivity="false" />
+				level="ERROR"/>
 			<AppenderRef
 				ref="Console"
-				level="INFO"
-				additivity="false" />
+				level="INFO"/>
 		</Logger>
 		<Logger
 			name="org.springframework"
