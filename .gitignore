@@ -1,6 +1,7 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
 src/main/resources/path_rule.json
+src/main/resources/proxywebs.json
 
 ### STS ###
 .apt_generated
