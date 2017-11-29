@@ -1,5 +1,6 @@
 package person.liuxx.movie.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -33,7 +34,14 @@ public class MovieServiceImpl implements MovieService
     public Optional<MovieDO> save(MovieDTO movie)
     {
         log.info("添加新的视频文件：{}", movie);
-        Optional<MovieDO> result = movieManager.format(movie).map(m -> movieDao.save(m));
+        Optional<MovieDO> result = movieManager.formatAndMove(movie).map(m -> movieDao.save(m));
         return result;
+    }
+
+    @Override
+    public List<MovieDO> list()
+    {
+        log.info("获取视频列表...");
+        return movieDao.findAll();
     }
 }

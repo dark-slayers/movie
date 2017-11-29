@@ -9,6 +9,7 @@ package person.liuxx.movie.business.path;
 public class PathRule
 {
     private String actress;
+    private String label;
     private String path;
 
     public PathRule()
@@ -25,6 +26,16 @@ public class PathRule
         this.actress = actress;
     }
 
+    public String getLabel()
+    {
+        return label;
+    }
+
+    public void setLabel(String label)
+    {
+        this.label = label;
+    }
+
     public String getPath()
     {
         return path;
@@ -33,5 +44,11 @@ public class PathRule
     public void setPath(String path)
     {
         this.path = path;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "PathRule [actress=" + actress + ", label=" + label + ", path=" + path + "]";
     }
 }

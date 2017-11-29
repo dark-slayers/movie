@@ -1,12 +1,12 @@
 package person.liuxx.movie.controller;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,26 +26,30 @@ import person.liuxx.movie.service.MovieService;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/movie")
 @Api(value = "视频对象控制器")
 public class MovieController
 {
-    private Logger log = LogManager.getLogger();
     @Autowired
     private MovieService movService;
 
-    @ApiOperation(value = "添加一个新的视频", notes = "解析传来的MovDTO信息，增加新的视频")
+    @ApiOperation(value = "添加一个新的视频", notes = "解析MovDTO信息，增加新的视频")
     @ApiImplicitParams(
     { @ApiImplicitParam(name = "movie", value = "视频信息实体MovieDTO", required = true,
             dataType = "MovieDTO") })
-    @PostMapping("/info")
+    @PostMapping("/movie/info")
     @ResponseStatus(value = HttpStatus.CREATED)
     public MovieDO save(@RequestBody MovieDTO movie)
     {
-        log.info("请求添加视频：{}", movie);
         return movService.save(movie).<MovieSaveFailedException> orElseThrow(() ->
         {
             throw new MovieSaveFailedException("添加视频失败，视频信息：" + movie);
         });
+    }
+
+    @ApiOperation(value = "获取视频列表", notes = "获取视频列表")
+    @GetMapping("/movies")
+    public List<MovieDO> list()
+    {
+        return movService.list();
     }
 }

@@ -1,5 +1,6 @@
 package person.liuxx.movie.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import person.liuxx.movie.domain.MovieDO;
@@ -21,4 +22,12 @@ public interface MovieService
     * @return
     */
     Optional<MovieDO> save(MovieDTO movie);
+
+    /** 
+    * @author  刘湘湘 
+    * @version 1.0.0<br>创建时间：2017年11月29日 下午4:22:28
+    * @since 1.0.0 
+    * @return
+    */
+    List<MovieDO> list();
 }

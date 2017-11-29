@@ -4,17 +4,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.alibaba.fastjson.JSON;
 
 import person.liuxx.movie.business.path.PathRule;
 import person.liuxx.movie.config.ElConfig;
@@ -22,7 +22,6 @@ import person.liuxx.movie.domain.MovieDO;
 import person.liuxx.movie.dto.MovieDTO;
 import person.liuxx.movie.exception.MovieSaveFailedException;
 import person.liuxx.movie.manager.MovieManager;
-import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.file.FileName;
 import person.liuxx.util.file.FileUtil;
 
@@ -36,77 +35,59 @@ import person.liuxx.util.file.FileUtil;
 public class MovieManagerImpl implements MovieManager
 {
     private Logger log = LoggerFactory.getLogger(MovieManagerImpl.class);
+    private static Set<String> picExtension = new HashSet<>(Arrays.asList(new String[]
+    { "jpg", "bmp", "gif" }));
     @Autowired
     private ElConfig ruleConfig;
 
     @Override
-    public Optional<MovieDO> format(MovieDTO movieFile)
+    public Optional<MovieDO> formatAndMove(MovieDTO movieFile)
     {
-        return Optional.ofNullable(movieFile).filter(m -> isValid(m)).flatMap(m -> move(m));
-    }
-
-    private boolean isValid(MovieDTO movieFile)
-    {
-        log.info("验证输入信息的有效性...");
-        return Optional.ofNullable(movieFile)
-                .filter(m -> !StringUtil.isBlank(m.getCode()))
-                .filter(m -> !StringUtil.isBlank(m.getPath()))
-                .filter(m -> FileUtil.existsFile(Paths.get(m.getPath())))
-                .isPresent();
+        return Optional.ofNullable(movieFile).flatMap(m -> move(m));
     }
 
     private Optional<MovieDO> move(MovieDTO movieFile)
     {
         log.info("查询分类规则，将视频移动至预设位置..");
-        String code = movieFile.getCode().toUpperCase();
-        List<PathRule> ruleList = ruleConfig.listPathRule()
-                .map(r -> JSON.parseArray(r, PathRule.class))
-                .orElse(new ArrayList<>());
-        Optional<Path> targetPath = ruleList.stream()
-                .filter(r -> Objects.equals(r.getActress(), movieFile.getActress()))
-                .findAny()
-                .map(r -> Paths.get(r.getPath(), String.valueOf(movieFile.getLevel()), code));
-        Optional<MovieDO> op = targetPath.map(p ->
+        String code = movieFile.getCode();
+        List<PathRule> ruleList = ruleConfig.listPathRule();
+        Optional<Path> targetPath = movieFile.targetPath(ruleList);
+        Optional<MovieDO> op = targetPath.flatMap(p ->
         {
-            move(Paths.get(movieFile.getPath()), p, code);
-            MovieDO result = new MovieDO();
-            result.setCode(code);
-            result.setLevel(movieFile.getLevel());
-            result.setPath(movieFile.getPath());
-            String tempActress = StringUtil.isEmpty(movieFile.getActress()) ? "UNKNOWN"
-                    : movieFile.getActress();
-            result.setActress(tempActress);
-            String tempLabel = StringUtil.isEmpty(movieFile.getLabel()) ? "UNKNOWN"
-                    : movieFile.getLabel();
-            result.setLabel(tempLabel);
-            return result;
+            move(movieFile, p, code);
+            return movieFile.mapToDO();
         });
         return op;
     }
 
-    private void move(Path source, Path target, String code)
+    private void move(MovieDTO movieFile, Path target, String code)
     {
         try
         {
             log.info("检查视频目录中是否存在图片文件...");
-            ;
+            Path source = Paths.get(movieFile.getPath());
+            Path parent = source.getParent();
             FileName movieFileName = FileUtil.getFileName(source).get();
-            FileName picFileName = Files.walk(source.getParent())
-                    .filter(p -> Objects.equals(source.getParent(), p.getParent()))
+            Optional<FileName> picFileNameOptional = Files.walk(parent)
+                    .filter(p -> Objects.equals(parent, p.getParent()))
                     .filter(p -> FileUtil.existsFile(p))
-                    .map(p -> FileUtil.getFileName(p).orElse(null))
-                    .filter(p -> Objects.nonNull(p))
-                    .filter(p -> Objects.equals(p.getExtension(), "jpg"))
-                    .findFirst()
-                    .get();
+                    .map(p -> FileUtil.getFileName(p).get())
+                    .filter(p -> picExtension.contains(p.getExtension().toLowerCase()))
+                    .findFirst();
             log.info("移动视频文件和图片文件...");
             if (!Files.exists(target))
             {
                 Files.createDirectories(target);
+                log.info("移动视频文件...");
                 Files.move(source, Paths.get(target.toString(), code + "." + movieFileName
                         .getExtension()));
-                Files.move(Paths.get(source.getParent().toString(), picFileName.toString()), Paths
-                        .get(target.toString(), code + "." + picFileName.getExtension()));
+                if (picFileNameOptional.isPresent())
+                {
+                    log.info("移动图片文件...");
+                    FileName picFileName = picFileNameOptional.get();
+                    Files.move(Paths.get(parent.toString(), picFileName.toString()), Paths.get(
+                            target.toString(), code + "." + picFileName.getExtension()));
+                }
                 log.info("移动视频文件和图片文件成功，删除源文件夹！");
                 Files.deleteIfExists(source.getParent());
             } else

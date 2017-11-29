@@ -20,5 +20,5 @@ public interface MovieManager
     * @param movie
     * @return
     */
-    Optional<MovieDO> format(MovieDTO movie);
+    Optional<MovieDO> formatAndMove(MovieDTO movie);
 }
