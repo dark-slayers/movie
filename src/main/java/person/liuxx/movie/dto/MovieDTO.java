@@ -1,15 +1,19 @@
 package person.liuxx.movie.dto;
 
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.commons.beanutils.BeanUtils;
+
 import person.liuxx.movie.business.path.PathRule;
 import person.liuxx.movie.domain.MovieDO;
 import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.file.FileUtil;
+import person.liuxx.util.service.exception.DataChangeException;
 
 /**
  * @author 刘湘湘
@@ -25,6 +29,7 @@ public class MovieDTO
     private int level;
     private String actress;
     private String label;
+    private String mainPic;
 
     public MovieDTO()
     {
@@ -34,12 +39,14 @@ public class MovieDTO
     {
         format();
         MovieDO result = new MovieDO();
-        result.setCode(code);
-        result.setLevel(level);
-        result.setPath(path);
-        result.setActress(actress);
-        result.setLabel(label);
-        return Optional.of(result);
+        try
+        {
+            BeanUtils.copyProperties(result, this);
+            return Optional.of(result);
+        } catch (IllegalAccessException | InvocationTargetException e)
+        {
+            throw new DataChangeException("数据转化异常：", e);
+        }
     }
 
     /**
@@ -53,7 +60,7 @@ public class MovieDTO
      */
     public MovieDTO format()
     {
-        code=code.toUpperCase();
+        code = code.toUpperCase();
         level = (level < 1) ? 1 : level;
         actress = StringUtil.isEmpty(actress) ? UNKNOWN : getActress();
         label = StringUtil.isEmpty(actress) ? UNKNOWN : getLabel();
@@ -159,10 +166,20 @@ public class MovieDTO
         this.label = label;
     }
 
+    public String getMainPic()
+    {
+        return mainPic;
+    }
+
+    public void setMainPic(String mainPic)
+    {
+        this.mainPic = mainPic;
+    }
+
     @Override
     public String toString()
     {
         return "MovieDTO [code=" + code + ", path=" + path + ", level=" + level + ", actress="
-                + actress + ", label=" + label + "]";
+                + actress + ", label=" + label + ", mainPic=" + mainPic + "]";
     }
 }

@@ -36,7 +36,7 @@ public class MovieController
     @ApiImplicitParams(
     { @ApiImplicitParam(name = "movie", value = "视频信息实体MovieDTO", required = true,
             dataType = "MovieDTO") })
-    @PostMapping("/movie/info")
+    @PostMapping("/movie")
     @ResponseStatus(value = HttpStatus.CREATED)
     public MovieDO save(@RequestBody MovieDTO movie)
     {

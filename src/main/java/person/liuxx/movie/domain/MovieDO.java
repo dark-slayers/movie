@@ -29,6 +29,8 @@ public class MovieDO
     private String actress;
     @Column(length = 10)
     private String label;
+    @Column(name = "main_pic")
+    private String mainPic;
 
     public MovieDO()
     {
@@ -94,10 +96,20 @@ public class MovieDO
         this.label = label;
     }
 
+    public String getMainPic()
+    {
+        return mainPic;
+    }
+
+    public void setMainPic(String mainPic)
+    {
+        this.mainPic = mainPic;
+    }
+
     @Override
     public String toString()
     {
         return "MovieDO [id=" + id + ", code=" + code + ", path=" + path + ", level=" + level
-                + ", actress=" + actress + ", label=" + label + "]";
+                + ", actress=" + actress + ", label=" + label + ", mainPic=" + mainPic + "]";
     }
 }

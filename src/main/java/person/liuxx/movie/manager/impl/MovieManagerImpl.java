@@ -79,14 +79,18 @@ public class MovieManagerImpl implements MovieManager
             {
                 Files.createDirectories(target);
                 log.info("移动视频文件...");
-                Files.move(source, Paths.get(target.toString(), code + "." + movieFileName
-                        .getExtension()));
+                Path targetMovie = Paths.get(target.toString(), code + "." + movieFileName
+                        .getExtension());
+                Files.move(source, targetMovie);
+                movieFile.setPath(targetMovie.toString());
                 if (picFileNameOptional.isPresent())
                 {
                     log.info("移动图片文件...");
                     FileName picFileName = picFileNameOptional.get();
-                    Files.move(Paths.get(parent.toString(), picFileName.toString()), Paths.get(
-                            target.toString(), code + "." + picFileName.getExtension()));
+                    Path targetPic = Paths.get(target.toString(), code + "." + picFileName
+                            .getExtension());
+                    Files.move(Paths.get(parent.toString(), picFileName.toString()), targetPic);
+                    movieFile.setMainPic(targetPic.toString());
                 }
                 log.info("移动视频文件和图片文件成功，删除源文件夹！");
                 Files.deleteIfExists(source.getParent());
