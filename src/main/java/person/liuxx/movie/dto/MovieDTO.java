@@ -64,6 +64,7 @@ public class MovieDTO
         level = (level < 1) ? 1 : level;
         actress = StringUtil.isEmpty(actress) ? UNKNOWN : getActress();
         label = StringUtil.isEmpty(actress) ? UNKNOWN : getLabel();
+        path = Paths.get(path).toString();
         return this;
     }
 
