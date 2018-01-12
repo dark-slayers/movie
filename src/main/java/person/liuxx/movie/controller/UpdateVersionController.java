@@ -22,12 +22,12 @@ public class UpdateVersionController
     @Autowired
     private UpdateVersionService updateVersionService;
 
-
     @ApiOperation(value = "获取视频列表", notes = "获取视频列表")
     @GetMapping("/new_version")
     public String version()
     {
-        return updateVersionService.updateVersion().orElseThrow(()->{
+        return updateVersionService.updateVersion().<UpdateException> orElseThrow(() ->
+        {
             throw new UpdateException("版本升级更新数据失败");
         });
     }

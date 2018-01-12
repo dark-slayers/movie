@@ -49,6 +49,20 @@ public class MovieDTO
         }
     }
 
+    public static MovieDTO of(MovieDO m)
+    {
+        MovieDTO result = new MovieDTO();
+        try
+        {
+            BeanUtils.copyProperties(m, result);
+            result.format();
+            return result;
+        } catch (IllegalAccessException | InvocationTargetException e)
+        {
+            throw new DataChangeException("数据转化异常：", e);
+        }
+    }
+
     /**
      * 对信息进行格式化
      * 

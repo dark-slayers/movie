@@ -10,14 +10,20 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import person.liuxx.movie.business.path.PathRule;
+import person.liuxx.movie.config.ElConfig;
 import person.liuxx.movie.dao.MovieRepository;
 import person.liuxx.movie.domain.MovieDO;
+import person.liuxx.movie.dto.MovieDTO;
 import person.liuxx.movie.service.UpdateVersionService;
 import person.liuxx.util.file.FileName;
 import person.liuxx.util.file.FileUtil;
+import person.liuxx.util.log.LogUtil;
 
 /**
  * @author 刘湘湘
@@ -30,6 +36,9 @@ public class UpdateVersionServiceImpl implements UpdateVersionService
 {
     @Autowired
     private MovieRepository movieDao;
+    @Autowired
+    private ElConfig ruleConfig;
+    private Logger log = LoggerFactory.getLogger(UpdateVersionServiceImpl.class);
 
     @Override
     public Optional<String> updateVersion()
@@ -41,8 +50,19 @@ public class UpdateVersionServiceImpl implements UpdateVersionService
             {
                 String path = m.getPath();
                 path = Paths.get(path).toString();
-                m.setPath(path);
-                Path source = Paths.get(path);
+                if (!FileUtil.existsFile(Paths.get(m.getPath())))
+                {
+                    List<PathRule> ruleList = ruleConfig.listPathRule();
+                    Optional<MovieDTO> optional = Optional.ofNullable(MovieDTO.of(m));
+                    Optional<Path> targetPath = optional.flatMap(d -> d.targetPath(ruleList)).map(
+                            p -> p.resolve(Paths.get(m.getPath()).getFileName()));
+                    targetPath.filter(p -> FileUtil.existsFile(p)).ifPresent(p ->
+                    {
+                        m.setPath(p.toString());
+                    });
+                }
+                Path source = Paths.get(m.getPath());
+                m.setPath(source.toString());
                 Path parent = source.getParent();
                 Set<String> picExtension = new HashSet<>(Arrays.asList(new String[]
                 { "jpg", "bmp", "gif" }));
@@ -59,6 +79,7 @@ public class UpdateVersionServiceImpl implements UpdateVersionService
             }
         } catch (Exception e)
         {
+            log.error(LogUtil.errorInfo(e));
         }
         return Optional.of("OK");
     }
