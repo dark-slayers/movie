@@ -54,13 +54,22 @@ public class UpdateVersionServiceImpl implements UpdateVersionService
                 {
                     List<PathRule> ruleList = ruleConfig.listPathRule();
                     Optional<MovieDTO> optional = Optional.ofNullable(MovieDTO.of(m));
+                    log.debug("ruleList:{}", ruleList);
+                    log.debug("optional:{}", optional);
+                    log.debug("optional:{}", optional.flatMap(d -> d.targetPath(ruleList)));
+                    log.debug("optional:{}", optional.flatMap(d -> d.targetPath(ruleList)).map(
+                            p -> p.resolve(Paths.get(m.getPath()).getFileName())));
                     Optional<Path> targetPath = optional.flatMap(d -> d.targetPath(ruleList)).map(
-                            p -> p.resolve(Paths.get(m.getPath()).getFileName()));
+                            p -> p.resolve(m.getCode() + FileUtil.getFileName(Paths.get(m
+                                    .getPath())).get().getExtension()));
+                    log.debug("targetPath:{}", targetPath);
                     targetPath.filter(p -> FileUtil.existsFile(p)).ifPresent(p ->
                     {
+                        log.debug("p:{}", p);
                         m.setPath(p.toString());
                     });
                 }
+                log.debug("m:{}", m);
                 Path source = Paths.get(m.getPath());
                 m.setPath(source.toString());
                 Path parent = source.getParent();
