@@ -52,13 +52,20 @@ public class MovieDTO
     public static MovieDTO of(MovieDO m)
     {
         MovieDTO result = new MovieDTO();
-        result.setActress(m.getActress());
-        result.setCode(m.getCode());
-        result.setLabel(m.getLabel());
-        result.setLevel(m.getLevel());
-        result.setMainPic(m.getMainPic());
-        result.setPath(m.getPath());
-        result.format();
+        try
+        {
+            BeanUtils.copyProperties(result, m);
+        } catch (IllegalAccessException | InvocationTargetException e)
+        {
+            throw new DataChangeException("数据转化异常：", e);
+        }
+//        result.setActress(m.getActress());
+//        result.setCode(m.getCode());
+//        result.setLabel(m.getLabel());
+//        result.setLevel(m.getLevel());
+//        result.setMainPic(m.getMainPic());
+//        result.setPath(m.getPath());
+//        result.format();
         return result;
     }
 
