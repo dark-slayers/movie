@@ -34,7 +34,8 @@ public class MovieServiceImpl implements MovieService
     public Optional<MovieDO> save(MovieDTO movie)
     {
         log.info("添加新的视频文件：{}", movie);
-        Optional<MovieDO> result = movieManager.formatAndMove(movie).map(m -> movieDao.save(m));
+        Optional<MovieDO> result = movieManager.formatAndMove(movie).flatMap(m -> m.mapToDO());
+        result.ifPresent(m -> movieDao.save(m));
         return result;
     }
 

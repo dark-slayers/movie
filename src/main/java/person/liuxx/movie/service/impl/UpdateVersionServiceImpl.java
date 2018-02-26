@@ -60,10 +60,10 @@ public class UpdateVersionServiceImpl implements UpdateVersionService
                     log.debug("optional:{}", optional.flatMap(d -> d.targetPath(ruleList)).map(
                             p -> p.resolve(Paths.get(m.getPath()).getFileName())));
                     Optional<Path> targetPath = optional.flatMap(d -> d.targetPath(ruleList)).map(
-                            p -> p.resolve(m.getCode() + FileUtil.getFileName(Paths.get(m
+                            p -> p.resolve(m.getCode() + getFileName(Paths.get(m
                                     .getPath())).get().getExtension()));
                     log.debug("targetPath:{}", targetPath);
-                    targetPath.filter(p -> FileUtil.existsFile(p)).ifPresent(p ->
+                    targetPath.ifPresent(p ->
                     {
                         log.debug("p:{}", p);
                         m.setPath(p.toString());
@@ -91,5 +91,19 @@ public class UpdateVersionServiceImpl implements UpdateVersionService
             log.error(LogUtil.errorInfo(e));
         }
         return Optional.of("OK");
+    }
+    Optional<FileName> getFileName(Path path){
+        String fileName = path.getFileName().toString();
+        if (!fileName.contains(".") || fileName.endsWith("."))
+        {
+            return Optional.of(new FileName(fileName, ""));
+        }
+        int dotIndex = fileName.lastIndexOf('.');
+        if (Objects.equals(0, dotIndex))
+        {
+            return Optional.of(new FileName("", fileName));
+        }
+        return Optional.of(new FileName(fileName.substring(0, dotIndex), fileName.substring(dotIndex
+                + 1)));
     }
 }
