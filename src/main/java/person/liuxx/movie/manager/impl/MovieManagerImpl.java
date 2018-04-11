@@ -71,7 +71,7 @@ public class MovieManagerImpl implements MovieManager
                 Files.createDirectories(target);
                 log.info("移动视频文件...");
                 Path targetMovie = Paths.get(target.toString(), code + "." + movieFileName
-                        .getExtension());
+                        .getExtension().toUpperCase());
                 Files.move(source, targetMovie);
                 movieFile.setPath(targetMovie.toString());
                 if (picFileNameOptional.isPresent())
@@ -79,7 +79,7 @@ public class MovieManagerImpl implements MovieManager
                     log.info("移动图片文件...");
                     FileName picFileName = picFileNameOptional.get();
                     Path targetPic = Paths.get(target.toString(), code + "." + picFileName
-                            .getExtension());
+                            .getExtension().toUpperCase());
                     Files.move(Paths.get(parent.toString(), picFileName.toString()), targetPic);
                     movieFile.setMainPic(targetPic.toString());
                 }
