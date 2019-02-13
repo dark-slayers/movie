@@ -30,7 +30,7 @@ import person.liuxx.movie.service.MovieService;
 public class MovieController
 {
     @Autowired
-    private MovieService movService;
+    private MovieService movieService;
 
     @ApiOperation(value = "添加一个新的视频", notes = "解析MovDTO信息，增加新的视频")
     @ApiImplicitParams(
@@ -40,7 +40,7 @@ public class MovieController
     @ResponseStatus(value = HttpStatus.CREATED)
     public MovieDO save(@RequestBody MovieDTO movie)
     {
-        return movService.save(movie).<MovieSaveFailedException> orElseThrow(() ->
+        return movieService.save(movie).<MovieSaveFailedException> orElseThrow(() ->
         {
             throw new MovieSaveFailedException("添加视频失败，视频信息：" + movie);
         });
@@ -50,6 +50,6 @@ public class MovieController
     @GetMapping("/movies")
     public List<MovieDO> list()
     {
-        return movService.list();
+        return movieService.list();
     }
 }
