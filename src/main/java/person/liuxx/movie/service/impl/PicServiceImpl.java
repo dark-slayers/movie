@@ -1,9 +1,5 @@
 package person.liuxx.movie.service.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Optional;
 
@@ -15,6 +11,8 @@ import org.springframework.stereotype.Service;
 import person.liuxx.movie.dao.MovieRepository;
 import person.liuxx.movie.domain.MovieDO;
 import person.liuxx.movie.service.PicService;
+import person.liuxx.movie.service.ResponseService;
+import person.liuxx.util.service.reponse.EmptySuccedResponse;
 
 /**
  * @author 刘湘湘
@@ -27,28 +25,14 @@ public class PicServiceImpl implements PicService
 {
     @Autowired
     private MovieRepository movieDao;
+    @Autowired
+    private ResponseService responseService;
 
     @Override
-    public Optional<String> getPic(HttpServletResponse response, String code)
+    public Optional<EmptySuccedResponse> getPic(HttpServletResponse response, String code)
     {
         Optional<MovieDO> movie = movieDao.findByCode(code);
-        movie.map(m -> Paths.get(m.getMainPic())).ifPresent(p ->
-        {
-            try (InputStream fis = Files.newInputStream(p);
-                    OutputStream os = response.getOutputStream();)
-            {
-                int count = 0;
-                byte[] buffer = new byte[1024 * 8];
-                while ((count = fis.read(buffer)) != -1)
-                {
-                    os.write(buffer, 0, count);
-                    os.flush();
-                }
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        });
-        return Optional.of("ok");
+        return movie.map(m -> m.getMainPic()).map(s -> Paths.get(s)).flatMap(p -> responseService
+                .getResource(response, p));
     }
 }

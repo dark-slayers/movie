@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
+import person.liuxx.util.service.reponse.EmptySuccedResponse;
+
 /**
  * @author 刘湘湘
  * @version 1.0.0<br>
@@ -21,5 +23,5 @@ public interface PicService
      * @param code
      * @return
      */
-    Optional<String> getPic(HttpServletResponse response, String code);
+    Optional<EmptySuccedResponse> getPic(HttpServletResponse response, String code);
 }

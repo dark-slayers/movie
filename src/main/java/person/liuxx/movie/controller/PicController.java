@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import person.liuxx.movie.service.PicService;
 import person.liuxx.util.service.exception.SearchException;
+import person.liuxx.util.service.reponse.EmptySuccedResponse;
 
 /**
  * @author 刘湘湘
@@ -29,9 +30,9 @@ public class PicController
     @ApiOperation(value = "根据code获取图片", notes = "根据code获取图片，直接将图片的字节流写入响应的HttpServletResponse")
     @ApiImplicitParam(name = "code", value = "视频编号", required = true, dataType = "String")
     @RequestMapping(value = "/pic/{code}")
-    public String showPic(HttpServletResponse response, @PathVariable String code)
+    public EmptySuccedResponse showPic(HttpServletResponse response, @PathVariable String code)
     {
-        return picService.getPic(response, code).<SearchException>orElseThrow(() ->
+        return picService.getPic(response, code).<SearchException> orElseThrow(() ->
         {
             throw new SearchException("获取图片失败！");
         });
