@@ -1,12 +1,18 @@
 package person.liuxx.movie.controller;
 
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import person.liuxx.movie.config.ElConfig;
+import person.liuxx.movie.domain.MovieDO;
+import person.liuxx.movie.service.MovieService;
+import person.liuxx.util.file.FileUtil;
 
 /**
  * @author 刘湘湘
@@ -19,12 +25,33 @@ public class TestController
 {
     private Logger log = LogManager.getLogger();
     @Autowired
-    ElConfig config;
+    private MovieService movieService;
 
-    @GetMapping("/test")
-    public String test()
+    @GetMapping("/test/db")
+    public List<String> test()
     {
-        log.info("ProxyWebParseUrl : {}");
-        return "TEST OVER !\n";
+        log.info("test db !");
+        List<String> result = new ArrayList<>();
+        List<MovieDO> list = movieService.list();
+        for (MovieDO m : list)
+        {
+            String info = m.getCode();
+            boolean hasError = false;
+            if (!FileUtil.existsFile(Paths.get(m.getPath())))
+            {
+                hasError = true;
+                info = info + ":视频文件不存在";
+            }
+            if (!FileUtil.existsFile(Paths.get(m.getMainPic())))
+            {
+                hasError = true;
+                info = info + ",图片文件不存在";
+            }
+            if (hasError)
+            {
+                result.add(info + "!");
+            }
+        }
+        return result;
     }
 }
