@@ -1,6 +1,10 @@
 package person.liuxx.movie.config;
 
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * @author 刘湘湘
@@ -8,6 +12,21 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  *          创建时间：2017年8月14日 下午4:09:08
  * @since 1.0.0
  */
-public class WebMvcConfig extends WebMvcConfigurerAdapter
+@Configuration
+public class WebMvcConfig implements WebMvcConfigurer
 {
+    @Value("${html.dir}")
+    private String htmlDir;
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry)
+    {
+        // registry.addViewController("/login").setViewName("login");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry)
+    {
+        registry.addResourceHandler("/page/**").addResourceLocations(htmlDir);
+    }
 }
