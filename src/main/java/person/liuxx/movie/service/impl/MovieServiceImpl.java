@@ -15,8 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import person.liuxx.movie.dao.MovieRepository;
-import person.liuxx.movie.domain.MovieDO;
 import person.liuxx.movie.dto.MovieDTO;
+import person.liuxx.movie.entity.MovieDO;
 import person.liuxx.movie.manager.MovieManager;
 import person.liuxx.movie.service.MovieService;
 import person.liuxx.movie.service.ResponseService;

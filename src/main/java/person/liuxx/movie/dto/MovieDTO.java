@@ -10,7 +10,7 @@ import java.util.Optional;
 import org.apache.commons.beanutils.BeanUtils;
 
 import person.liuxx.movie.business.path.PathRule;
-import person.liuxx.movie.domain.MovieDO;
+import person.liuxx.movie.entity.MovieDO;
 import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.file.FileUtil;
 import person.liuxx.util.service.exception.DataChangeException;

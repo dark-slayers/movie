@@ -12,7 +12,7 @@ import person.liuxx.util.service.reponse.EmptySuccedResponse;
  *          创建时间：2017年12月1日 下午4:48:04
  * @since 1.0.0
  */
-public interface PicService
+public interface PictureService
 {
     /**
      * @author 刘湘湘
@@ -23,5 +23,5 @@ public interface PicService
      * @param code
      * @return
      */
-    Optional<EmptySuccedResponse> getPic(HttpServletResponse response, String code);
+    Optional<EmptySuccedResponse> getPicture(HttpServletResponse response, String code);
 }

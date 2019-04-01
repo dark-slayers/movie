@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import person.liuxx.movie.domain.MovieDO;
+import person.liuxx.movie.entity.MovieDO;
 
 /**
  * @author 刘湘湘

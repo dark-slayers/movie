@@ -1,4 +1,4 @@
-package person.liuxx.movie.domain;
+package person.liuxx.movie.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

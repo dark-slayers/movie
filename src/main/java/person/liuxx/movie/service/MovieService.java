@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
-import person.liuxx.movie.domain.MovieDO;
 import person.liuxx.movie.dto.MovieDTO;
+import person.liuxx.movie.entity.MovieDO;
 import person.liuxx.util.service.reponse.EmptySuccedResponse;
 
 /**

@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import person.liuxx.movie.dao.MovieRepository;
-import person.liuxx.movie.domain.MovieDO;
-import person.liuxx.movie.service.PicService;
+import person.liuxx.movie.entity.MovieDO;
+import person.liuxx.movie.service.PictureService;
 import person.liuxx.movie.service.ResponseService;
 import person.liuxx.util.service.reponse.EmptySuccedResponse;
 
@@ -21,7 +21,7 @@ import person.liuxx.util.service.reponse.EmptySuccedResponse;
  * @since 1.0.0
  */
 @Service
-public class PicServiceImpl implements PicService
+public class PictureServiceImpl implements PictureService
 {
     @Autowired
     private MovieRepository movieDao;
@@ -29,7 +29,7 @@ public class PicServiceImpl implements PicService
     private ResponseService responseService;
 
     @Override
-    public Optional<EmptySuccedResponse> getPic(HttpServletResponse response, String code)
+    public Optional<EmptySuccedResponse> getPicture(HttpServletResponse response, String code)
     {
         Optional<MovieDO> movie = movieDao.findByCode(code);
         return movie.map(m -> m.getMainPic()).map(s -> Paths.get(s)).flatMap(p -> responseService

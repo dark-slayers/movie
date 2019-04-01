@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import person.liuxx.movie.domain.MovieDO;
+import person.liuxx.movie.entity.MovieDO;
 import person.liuxx.movie.service.MovieService;
 import person.liuxx.util.file.FileUtil;
 

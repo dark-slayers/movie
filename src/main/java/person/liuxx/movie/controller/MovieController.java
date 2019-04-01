@@ -14,8 +14,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import person.liuxx.movie.domain.MovieDO;
 import person.liuxx.movie.dto.MovieDTO;
+import person.liuxx.movie.entity.MovieDO;
 import person.liuxx.movie.exception.MovieSaveFailedException;
 import person.liuxx.movie.service.MovieService;
 
