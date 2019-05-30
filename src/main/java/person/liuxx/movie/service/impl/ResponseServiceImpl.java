@@ -31,6 +31,8 @@ import person.liuxx.util.service.reponse.EmptySuccedResponse;
 @Service
 public class ResponseServiceImpl implements ResponseService
 {
+    private static final int BUFFER_LENGTH = 1024 * 8;
+
     @Override
     public Optional<ResponseEntity<Resource>> getResource(Path path)
     {
@@ -79,7 +81,7 @@ public class ResponseServiceImpl implements ResponseService
                 OutputStream os = response.getOutputStream();)
         {
             int count = 0;
-            byte[] buffer = new byte[1024 * 8];
+            byte[] buffer = new byte[BUFFER_LENGTH];
             while ((count = fis.read(buffer)) != -1)
             {
                 os.write(buffer, 0, count);
