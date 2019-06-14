@@ -66,30 +66,28 @@ public class MovieManagerImpl implements MovieManager
                     .filter(p -> picExtension.contains(p.getExtension().toLowerCase()))
                     .findFirst();
             log.info("移动视频文件和图片文件...");
-            if (!Files.exists(target))
-            {
-                Files.createDirectories(target);
-                log.info("移动视频文件...");
-                Path targetMovie = Paths.get(target.toString(), code + "." + movieFileName
-                        .getExtension().toUpperCase());
-                Files.move(source, targetMovie);
-                movieFile.setPath(targetMovie.toString());
-                if (picFileNameOptional.isPresent())
-                {
-                    log.info("移动图片文件...");
-                    FileName picFileName = picFileNameOptional.get();
-                    Path targetPic = Paths.get(target.toString(), code + "." + picFileName
-                            .getExtension().toUpperCase());
-                    Files.move(Paths.get(parent.toString(), picFileName.toString()), targetPic);
-                    movieFile.setMainPic(targetPic.toString());
-                }
-                log.info("移动视频文件和图片文件成功，删除源文件夹！");
-                Files.deleteIfExists(source.getParent());
-                return movieFile;
-            } else
+            if (Files.exists(target))
             {
                 throw new MovieSaveFailedException("目标文件夹已经存在！");
             }
+            Files.createDirectories(target);
+            log.info("移动视频文件...");
+            Path targetMovie = Paths.get(target.toString(), code + "." + movieFileName
+                    .getExtension().toUpperCase());
+            Files.move(source, targetMovie);
+            movieFile.setPath(targetMovie.toString());
+            if (picFileNameOptional.isPresent())
+            {
+                log.info("移动图片文件...");
+                FileName picFileName = picFileNameOptional.get();
+                Path targetPic = Paths.get(target.toString(), code + "." + picFileName
+                        .getExtension().toUpperCase());
+                Files.move(Paths.get(parent.toString(), picFileName.toString()), targetPic);
+                movieFile.setMainPic(targetPic.toString());
+            }
+            log.info("移动视频文件和图片文件成功，删除源文件夹！");
+            Files.deleteIfExists(source.getParent());
+            return movieFile;
         } catch (IOException e)
         {
             throw new MovieSaveFailedException("添加视频失败！", e);

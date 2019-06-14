@@ -12,7 +12,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import person.liuxx.movie.business.path.PathRule;
 import person.liuxx.movie.entity.MovieDO;
 import person.liuxx.util.base.StringUtil;
-import person.liuxx.util.file.FileUtil;
 import person.liuxx.util.service.exception.DataChangeException;
 
 /**
@@ -59,13 +58,6 @@ public class MovieDTO
         {
             throw new DataChangeException("数据转化异常：", e);
         }
-//        result.setActress(m.getActress());
-//        result.setCode(m.getCode());
-//        result.setLabel(m.getLabel());
-//        result.setLevel(m.getLevel());
-//        result.setMainPic(m.getMainPic());
-//        result.setPath(m.getPath());
-//        result.format();
         return result;
     }
 
@@ -89,24 +81,6 @@ public class MovieDTO
     }
 
     /**
-     * 验证信息是否可用
-     * 
-     * @author 刘湘湘
-     * @version 1.0.0<br>
-     *          创建时间：2017年11月29日 上午10:03:27
-     * @since 1.0.0
-     * @return
-     */
-    public boolean valid()
-    {
-        return Optional.of(this)
-                .filter(m -> !StringUtil.isEmpty(m.getCode()))
-                .filter(m -> !StringUtil.isEmpty(m.getPath()))
-                .filter(m -> FileUtil.existsFile(Paths.get(m.getPath())))
-                .isPresent();
-    }
-
-    /**
      * 从指定的规则列表中筛选出目标路径，如果没有获取到路径，返回Optional.empty()
      * 
      * @author 刘湘湘
@@ -118,24 +92,19 @@ public class MovieDTO
      */
     public Optional<Path> targetPath(List<PathRule> ruleList)
     {
-        Optional<Path> result = Optional.empty();
-//        if (!valid())
-//        {
-//            return result;
-//        }
         format();
-        System.out.println(">>>>>>>>>>>"+this);
-        Optional<PathRule> ruleOptional = ruleList.stream()
-                .filter(r -> Objects.equals(r.getActress(), actress))
-                .findAny();
-        if (Objects.equals(UNKNOWN, actress))
-        {
-            ruleOptional = ruleList.stream()
-                    .filter(r -> Objects.equals(r.getLabel(), label))
-                    .findAny();
-        }
-        result = ruleOptional.map(r -> Paths.get(r.getPath(), String.valueOf(level), code));
+        Optional<Path> result = ruleList.stream().filter(r -> isEffective(r)).findAny().map(
+                r -> Paths.get(r.getPath(), String.valueOf(level), code));
         return result;
+    }
+
+    private boolean isEffective(PathRule rule)
+    {
+        if (Objects.equals(rule.getActress(), actress))
+        {
+            return true;
+        }
+        return Objects.equals(rule.getLabel(), label);
     }
 
     public String getCode()
