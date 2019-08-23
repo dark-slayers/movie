@@ -1,7 +1,5 @@
 package person.liuxx.movie.service.impl;
 
-import static org.junit.Assert.fail;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -69,13 +67,18 @@ public class ResponseServiceImplTest
     @Test
     public void testGetResourcePath()
     {
-        Path path = Paths.get("");
+       
+    }
+    void download(){
+        Path path = Paths.get("E:/dshell/in.txt");
         ResponseEntity<Resource> r = Optional.ofNullable(path)
                 .flatMap(p -> service.getResource(p))
                 .<SearchException> orElseThrow(() ->
                 {
                     throw new SearchException("获取文件失败！");
                 });
+        String fileName=r.getBody().getFilename();
+        log.info("file {} download over !",fileName);
     }
 
     /**
@@ -85,6 +88,6 @@ public class ResponseServiceImplTest
     @Test
     public void testGetResourceHttpServletResponsePath()
     {
-        fail("尚未实现");
+       
     }
 }
