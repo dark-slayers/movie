@@ -64,6 +64,7 @@ public class MovieServiceImpl implements MovieService
     @Override
     public Optional<EmptySuccedResponse> getResource(HttpServletResponse response, String code)
     {
+        log.info("download file,code:{}", code);
         return getFilePath(code).flatMap(p -> responseService.getResource(response, p));
     }
 

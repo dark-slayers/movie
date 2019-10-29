@@ -12,6 +12,8 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +33,7 @@ import person.liuxx.util.service.reponse.EmptySuccedResponse;
 @Service
 public class ResponseServiceImpl implements ResponseService
 {
+    private Logger log = LoggerFactory.getLogger(ResponseServiceImpl.class);
     private static final int BUFFER_LENGTH = 1024 * 8;
 
     @Override
@@ -77,6 +80,7 @@ public class ResponseServiceImpl implements ResponseService
     @Override
     public Optional<EmptySuccedResponse> getResource(HttpServletResponse response, Path path)
     {
+        log.info("download file:{}", path);
         try (InputStream fis = Files.newInputStream(path);
                 OutputStream os = response.getOutputStream();)
         {
